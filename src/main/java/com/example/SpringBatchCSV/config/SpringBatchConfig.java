@@ -24,54 +24,59 @@ import org.springframework.core.io.FileSystemResource;
 @Slf4j
 @EnableBatchProcessing
 public class SpringBatchConfig {
-    @Bean(name = "jobCSVToH2")
-    public Job job(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory,
-                   ItemReader<User> itemReader,
-                   ItemProcessor<User, User> itemProcessor,
-                   ItemWriter<User> itemWriter) {
-        Step step = stepBuilderFactory.get("ETL-file-load")
-                .<User, User>chunk(100)
-                .reader(itemReader)
-                .processor(itemProcessor)
-                .writer(itemWriter)
-                .build();
+  @Bean(name = "jobCSVToH2")
+  public Job job(
+      JobBuilderFactory jobBuilderFactory,
+      StepBuilderFactory stepBuilderFactory,
+      ItemReader<User> itemReader,
+      ItemProcessor<User, User> itemProcessor,
+      ItemWriter<User> itemWriter) {
+    Step step =
+        stepBuilderFactory
+            .get("ETL-file-load")
+            .<User, User>chunk(100)
+            .reader(itemReader)
+            .processor(itemProcessor)
+            .writer(itemWriter)
+            .build();
 
-        return jobBuilderFactory.get("ETL-Load")
-                .incrementer(new RunIdIncrementer())
-                .start(step)
-                .build();
-    }
+    return jobBuilderFactory
+        .get("ETL-Load")
+        .incrementer(new RunIdIncrementer())
+        .start(step)
+        .build();
+  }
 
-    @Bean
-    public FlatFileItemReader<User> itemReader() {
-        log.info("[START] read user from csv");
+  @Bean
+  public FlatFileItemReader<User> itemReader() {
+    log.info("[START] read user from csv");
 
-        FlatFileItemReader<User> flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setResource(new FileSystemResource("src/main/resources/data.csv"));
-        flatFileItemReader.setName("CSV-Reader");
-        flatFileItemReader.setLinesToSkip(1);
-        flatFileItemReader.setLineMapper(lineMapper());
+    FlatFileItemReader<User> flatFileItemReader = new FlatFileItemReader<>();
+    flatFileItemReader.setResource(new FileSystemResource("src/main/resources/data.csv"));
+    flatFileItemReader.setName("CSV-Reader");
+    flatFileItemReader.setLinesToSkip(1);
+    flatFileItemReader.setLineMapper(lineMapper());
 
-        log.info("[END] read user from csv");
-        return flatFileItemReader;
-    }
+    log.info("[END] read user from csv");
+    return flatFileItemReader;
+  }
 
-    @Bean
-    public LineMapper<User> lineMapper() {
+  @Bean
+  public LineMapper<User> lineMapper() {
 
-        DefaultLineMapper<User> defaultLineMapper = new DefaultLineMapper<>();
-        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+    DefaultLineMapper<User> defaultLineMapper = new DefaultLineMapper<>();
+    DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
 
-        lineTokenizer.setDelimiter(",");
-        lineTokenizer.setStrict(false);
-        lineTokenizer.setNames(new String[]{"id", "name", "dept", "salary"});
+    lineTokenizer.setDelimiter(",");
+    lineTokenizer.setStrict(false);
+    lineTokenizer.setNames(new String[] {"id", "name", "dept", "salary"});
 
-        BeanWrapperFieldSetMapper<User> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(User.class);
+    BeanWrapperFieldSetMapper<User> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+    fieldSetMapper.setTargetType(User.class);
 
-        defaultLineMapper.setLineTokenizer(lineTokenizer);
-        defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+    defaultLineMapper.setLineTokenizer(lineTokenizer);
+    defaultLineMapper.setFieldSetMapper(fieldSetMapper);
 
-        return defaultLineMapper;
-    }
+    return defaultLineMapper;
+  }
 }

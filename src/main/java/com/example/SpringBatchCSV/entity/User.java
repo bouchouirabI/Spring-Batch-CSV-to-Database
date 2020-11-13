@@ -1,12 +1,10 @@
 package com.example.SpringBatchCSV.entity;
 
-import lombok.AllArgsConstructor;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Entity
 @NoArgsConstructor
@@ -14,11 +12,8 @@ import javax.persistence.Id;
 @Setter
 public class User {
 
-    @Id
-    private Integer id;
-    private String name;
-    private String dept;
-    private Integer salary;
-
+  @Id private Integer id;
+  private String name;
+  private String dept;
+  private Integer salary;
 }
-
